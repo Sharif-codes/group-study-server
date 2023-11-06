@@ -76,39 +76,66 @@ async function run() {
             const result = await cursor.toArray()
             res.send(result)
         })
-        app.get('/assignment/:difficulty', async(req,res)=>{
-            const difficulty= req.params.difficulty
-            const query= {difficulty: difficulty}
-            const result= await allAssignmentCollection.find(query).toArray()
+        app.get('/assignment/:difficulty', async (req, res) => {
+            const difficulty = req.params.difficulty
+            const query = { difficulty: difficulty }
+            const result = await allAssignmentCollection.find(query).toArray()
             res.send(result)
         })
-        app.get('/single-assignment/:id', async(req,res)=>{
-            const id= req.params.id
-            const query= {_id: new ObjectId(id)}
-            const result= await allAssignmentCollection.findOne(query)
+        app.get('/single-assignment/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await allAssignmentCollection.findOne(query)
             res.send(result)
+        })
+        app.get('/update-assignment/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await allAssignmentCollection.findOne(query)
+            res.send(result)
+        })
+        app.put('/updated-assignment/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const option = { upsert: true }
+            const updatedAssignment = req.body
+            const assignment = {
+                $set: {
+                    
+                    title: updatedAssignment.title,
+                    description: updatedAssignment.description,
+                    mark: updatedAssignment.mark,
+                    thumbnail: updatedAssignment.thumbnail,
+                    due: updatedAssignment.due,
+                    difficulty: updatedAssignment.difficulty
+                    
+                }
+            }
+            const result= await allAssignmentCollection.updateOne(filter,assignment,option)
+            res.send(result);
+            
         })
         app.delete('/delete-assignment/', logger, async (req, res) => {
             const id = req.body._id;
             const email = req.body.email;
-            const queryById = { _id:new ObjectId(id) };
+            const queryById = { _id: new ObjectId(id) };
             const existingItem = await allAssignmentCollection.findOne(queryById);
-          
+
             if (existingItem) {
-              if (existingItem.createdBy === email) {
-                await allAssignmentCollection.deleteOne(queryById);
-                console.log('Item deleted successfully');
-                res.status(200).json({ message: 'Item deleted successfully' });
-              } else {
-                console.log('Email does not match the ID');
-                res.status(403).json({ message: 'Forbidden: Email does not match the ID' });
-              }
+                if (existingItem.createdBy === email) {
+                    await allAssignmentCollection.deleteOne(queryById);
+                    console.log('Item deleted successfully');
+                    res.status(200).json({ message: 'Item deleted successfully' });
+                } else {
+                    console.log('Email does not match the ID');
+                    res.status(403).json({ message: 'Forbidden: Email does not match the ID' });
+                }
             } else {
-              console.log('No item found with the specified ID');
-              res.status(404).json({ message: 'No item found with the specified ID' });
+                console.log('No item found with the specified ID');
+                res.status(404).json({ message: 'No item found with the specified ID' });
             }
-          });
-          
+        });
+
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
