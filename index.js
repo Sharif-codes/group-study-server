@@ -53,6 +53,7 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
         const allAssignmentCollection = client.db('assignmentDB').collection('allAssignment')
+        const submittedAssignmentCollection = client.db('assignmentDB').collection('submittedAssignment')
         app.post('/jwt', logger, async (req, res) => {
             const user = req.body
             console.log(user)
@@ -135,6 +136,12 @@ async function run() {
                 res.status(404).json({ message: 'No item found with the specified ID' });
             }
         });
+
+        app.post('/submit-assignment', async (req,res)=>{
+            const data= req.body
+            const result= await submittedAssignmentCollection.insertOne(data)
+            res.send(result)
+        })
 
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
