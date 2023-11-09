@@ -83,8 +83,13 @@ async function run() {
             res.send(result)
         })
         app.get('/get-assignment', async (req, res) => {
-            const cursor = allAssignmentCollection.find()
-            const result = await cursor.toArray()
+            const page= parseInt(req.query.page)
+            const size= parseInt(req.query.size)
+            console.log(page,size)
+            const result = await allAssignmentCollection.find()
+            .skip(page*size)
+            .limit(size)
+            .toArray()
             res.send(result)
         })
         app.get('/assignment/:difficulty', async (req, res) => {
